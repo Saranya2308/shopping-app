@@ -2,6 +2,11 @@
 
 pipeline {
     agent any
+
+    environment {
+        SERVICES = 'cart-service, payment-service, order-service, notification-service, product-service'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -13,11 +18,18 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Define services list here outside environment block
-                    def services = ['cart-service', 'payment-service', 'order-service', 'notification-service', 'product-service']
+                    def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🔧 Building ${service}"
-                        buildApp(service)
+                        def serviceDir = "${service}/src"
+                        if (fileExists("${serviceDir}/package.json")) {
+                            echo "📦 Found package.json for ${service}. Installing dependencies..."
+                            dir(serviceDir) {
+                                sh 'npm install'  // Install dependencies for Node.js
+                            }
+                        } else {
+                            echo "❌ No package.json found in ${serviceDir}. Skipping build."
+                        }
                     }
                 }
             }
@@ -26,7 +38,6 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    def services = ['cart-service', 'payment-service', 'order-service', 'notification-service', 'product-service']
                     services.each { service ->
                         echo "🧪 Testing ${service}"
                         testApp(service)
@@ -38,7 +49,6 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
-                    def services = ['cart-service', 'payment-service', 'order-service', 'notification-service', 'product-service']
                     services.each { service ->
                         echo "🐳 Dockerizing ${service}"
                         dockerBuildAndPush(service)
@@ -50,7 +60,6 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    def services = ['cart-service', 'payment-service', 'order-service', 'notification-service', 'product-service']
                     services.each { service ->
                         echo "🚀 Deploying ${service} to staging"
                         deployToEnv(service, 'staging')
