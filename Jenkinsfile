@@ -1,5 +1,12 @@
+@Library('jenkins-shared-library') _  // Import shared library
+
 pipeline {
     agent any
+
+    environment {
+        // Define the services list
+        services = ['cart-service', 'payment-service', 'order-service', 'notification-service', 'product-service']
+    }
 
     stages {
         stage('Checkout') {
@@ -14,7 +21,7 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "🔧 Building ${service}"
-                        buildApp(service)
+                        buildApp(service)  // Function from shared library
                     }
                 }
             }
@@ -25,7 +32,7 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "🧪 Testing ${service}"
-                        testApp(service)
+                        testApp(service)  // Function from shared library
                     }
                 }
             }
@@ -36,7 +43,7 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "🐳 Dockerizing ${service}"
-                        dockerBuildAndPush(service)
+                        dockerBuildAndPush(service)  // Function from shared library
                     }
                 }
             }
@@ -47,7 +54,7 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "🚀 Deploying ${service} to staging"
-                        deployToEnv(service, 'staging')
+                        deployToEnv(service, 'staging')  // Function from shared library
                     }
                 }
             }
