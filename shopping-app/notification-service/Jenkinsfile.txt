@@ -22,14 +22,20 @@ pipeline {
             steps {
                 script {
                     echo "Workspace contents:"
-                    // For Linux agents
-                    sh 'ls -alh' 
-                    // For Windows agents
-                    // bat 'dir'
+                    // Run `ls` on Linux or `dir` on Windows
+                    if (isUnix()) {
+                        sh 'ls -alh'  // For Linux/Unix agents
+                    } else {
+                        bat 'dir'  // For Windows agents
+                    }
 
                     // Add debugging to check if the necessary files for build exist
                     echo "Checking for build files..."
-                    sh 'ls -alh'  // Adjust this based on your project files
+                    if (isUnix()) {
+                        sh 'ls -alh'  // Adjust this based on your project files on Linux
+                    } else {
+                        bat 'dir'  // For Windows, check files in the workspace
+                    }
 
                     // Run build process using the shared library function
                     echo "Running the build process..."
