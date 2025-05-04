@@ -6,14 +6,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Explicitly define the repository and branch
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']], // Replace with your branch if different
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [],
-                        userRemoteConfigs: [[url: 'https://github.com/Saranya2308/jenkins-shared-library.git']]
-                    ])
+                    echo "Checking out application source..."
+                    checkout scm  // This checks out your actual app repo
                 }
             }
         }
@@ -22,43 +16,40 @@ pipeline {
             steps {
                 script {
                     echo "Workspace contents:"
-                    // Run `ls` on Linux or `dir` on Windows
                     if (isUnix()) {
-                        sh 'ls -alh'  // For Linux/Unix agents
+                        sh 'ls -alh'
                     } else {
-                        bat 'dir'  // For Windows agents
+                        bat 'dir'
                     }
 
-                    // Add debugging to check if the necessary files for build exist
                     echo "Checking for build files..."
                     if (isUnix()) {
-                        sh 'ls -alh'  // Adjust this based on your project files on Linux
+                        sh 'ls -alh'
                     } else {
-                        bat 'dir'  // For Windows, check files in the workspace
+                        bat 'dir'
                     }
 
-                    // Run build process using the shared library function
                     echo "Running the build process..."
-                    buildApp()  // Make sure this function is defined in the shared library
+                    buildApp()
                 }
             }
         }
 
         stage('Test') {
             steps {
-                runTests()  // Run tests for the Notification service (optional, depending on your test setup)
+                runTests()
             }
         }
 
         stage('Dockerize') {
             steps {
-                dockerBuildAndPush()  // Build and push Docker image using the shared dockerBuildAndPush function
+                dockerBuildAndPush()
             }
         }
 
         stage('Deploy to Staging') {
             steps {
-                deployToEnv('staging')  // Deploy to staging environment using the shared deployToEnv function
+                deployToEnv('staging')
             }
         }
     }
