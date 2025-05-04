@@ -30,8 +30,8 @@ pipeline {
                     }
 
                     echo "Running the build process..."
-                    // Pass the directory to buildApp
-                    buildApp('shopping-app')
+                    // Call buildApp without arguments if it doesn't need one
+                    buildApp()
                 }
             }
         }
