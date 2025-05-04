@@ -1,37 +1,25 @@
 @Library('jenkins-shared-library') _
 
+def services = ['cart-service', 'product-service', 'notification-service', 'payment-service', 'order-service']
+
 pipeline {
     agent any
+
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    echo "Checking out application source..."
-                    checkout scm  // This checks out your actual app repo
-                }
+                echo 'Checking out application source...'
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
                 script {
-                    echo "Workspace contents:"
-                    if (isUnix()) {
-                        sh 'ls -alh'  // List contents on Unix systems
-                    } else {
-                        bat 'dir'  // List contents on Windows systems
+                    services.each { service ->
+                        echo "🔧 Building ${service}"
+                        buildApp(service)
                     }
-
-                    echo "Checking for build files..."
-                    if (isUnix()) {
-                        sh 'ls -alh'  // Again listing on Unix
-                    } else {
-                        bat 'dir'  // Listing on Windows
-                    }
-
-                    echo "Running the build process..."
-                    // Call buildApp function with the service name
-                    buildApp('.')
                 }
             }
         }
@@ -39,8 +27,10 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    echo "Running tests..."
-                    runTests()  // Assuming this is defined in your shared library
+                    services.each { service ->
+                        echo "🧪 Testing ${service}"
+                        testApp(service)
+                    }
                 }
             }
         }
@@ -48,8 +38,10 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
-                    echo "Building and pushing Docker image..."
-                    dockerBuildAndPush()  // Assuming Docker is set up and working in both environments
+                    services.each { service ->
+                        echo "🐳 Dockerizing ${service}"
+                        dockerBuildAndPush(service)
+                    }
                 }
             }
         }
@@ -57,8 +49,10 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    echo "Deploying to Staging..."
-                    deployToEnv('staging')  // Assuming this is defined in your shared library
+                    services.each { service ->
+                        echo "🚀 Deploying ${service} to staging"
+                        deployToEnv(service, 'staging')
+                    }
                 }
             }
         }
