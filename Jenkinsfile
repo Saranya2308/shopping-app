@@ -1,7 +1,3 @@
-@Library('jenkins-shared-library') _
-
-def services = ['cart-service', 'product-service', 'notification-service', 'payment-service', 'order-service']
-
 pipeline {
     agent any
 
