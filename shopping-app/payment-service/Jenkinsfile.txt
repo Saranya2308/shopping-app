@@ -5,24 +5,37 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm // Checkout code from the repo
+                script {
+                    // Explicitly define the repository and branch
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']], // Replace with your branch if different
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        userRemoteConfigs: [[url: 'https://github.com/Saranya2308/jenkins-shared-library.git']]
+                    ])
+                }
             }
         }
+
         stage('Build') {
             steps {
                 buildApp() // Build the Notification service using the shared buildApp function
             }
         }
+
         stage('Test') {
             steps {
                 runTests() // Run tests for Notification service (optional, depending on your test setup)
             }
         }
+
         stage('Dockerize') {
             steps {
                 dockerBuildAndPush() // Build and push Docker image using the shared dockerBuildAndPush function
             }
         }
+
         stage('Deploy to Staging') {
             steps {
                 deployToEnv('staging') // Deploy to staging environment using the shared deployToEnv function
