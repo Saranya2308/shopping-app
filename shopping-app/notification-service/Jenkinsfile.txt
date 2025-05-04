@@ -30,6 +30,7 @@ pipeline {
                     }
 
                     echo "Running the build process..."
+                    // Call buildApp without arguments if it doesn't need one
                     buildApp()
                 }
             }
