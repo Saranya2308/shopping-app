@@ -10,12 +10,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                buildApp() // Build the Cart service using the shared buildApp function
+                buildApp() // Build the Notification service using the shared buildApp function
             }
         }
         stage('Test') {
             steps {
-                runTests() // Run tests for Cart service (optional, depending on your test setup)
+                runTests() // Run tests for Notification service (optional, depending on your test setup)
             }
         }
         stage('Dockerize') {
@@ -27,17 +27,6 @@ pipeline {
             steps {
                 deployToEnv('staging') // Deploy to staging environment using the shared deployToEnv function
             }
-        }
-    }
-    post {
-        always {
-            notifySlack("Pipeline finished for ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}")
-        }
-        success {
-            echo "✅ Build succeeded"
-        }
-        failure {
-            echo "❌ Build failed"
         }
     }
 }
