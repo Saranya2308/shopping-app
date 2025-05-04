@@ -1,0 +1,46 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent any
+    environment {
+        SLACK_WEBHOOK_URL = credentials('slack-webhook-url') // Slack Webhook URL from Jenkins credentials
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm // Checkout code from the repo
+            }
+        }
+        stage('Build') {
+            steps {
+                buildApp() // Build the Product service using the shared buildApp function
+            }
+        }
+        stage('Test') {
+            steps {
+                runTests() // Run tests for Product service (optional, depending on your test setup)
+            }
+        }
+        stage('Dockerize') {
+            steps {
+                dockerBuildAndPush() // Build and push Docker image using the shared dockerBuildAndPush function
+            }
+        }
+        stage('Deploy to Staging') {
+            steps {
+                deployToEnv('staging') // Deploy to staging environment using the shared deployToEnv function
+            }
+        }
+    }
+    post {
+        always {
+            notifySlack("Pipeline finished for ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}")
+        }
+        success {
+            echo "✅ Build succeeded"
+        }
+        failure {
+            echo "❌ Build failed"
+        }
+    }
+}
