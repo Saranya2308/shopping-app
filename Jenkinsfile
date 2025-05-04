@@ -31,7 +31,7 @@ pipeline {
 
                     echo "Running the build process..."
                     // Call buildApp function with the service name
-                    buildApp('product-service')
+                    buildApp('.')
                 }
             }
         }
