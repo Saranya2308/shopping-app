@@ -2,9 +2,6 @@
 
 pipeline {
     agent any
-    environment {
-        SLACK_WEBHOOK_URL = credentials('slack-webhook-url') // Slack Webhook URL from Jenkins credentials
-    }
     stages {
         stage('Checkout') {
             steps {
@@ -30,17 +27,6 @@ pipeline {
             steps {
                 deployToEnv('staging') // Deploy to staging environment using the shared deployToEnv function
             }
-        }
-    }
-    post {
-        always {
-            notifySlack("Pipeline finished for ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}")
-        }
-        success {
-            echo "✅ Build succeeded"
-        }
-        failure {
-            echo "❌ Build failed"
         }
     }
 }
