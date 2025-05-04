@@ -30,7 +30,8 @@ pipeline {
                     }
 
                     echo "Running the build process..."
-                    buildApp()
+                    // Pass the directory to buildApp
+                    buildApp('shopping-app')
                 }
             }
         }
