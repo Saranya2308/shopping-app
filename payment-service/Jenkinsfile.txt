@@ -17,20 +17,20 @@ pipeline {
                 script {
                     echo "Workspace contents:"
                     if (isUnix()) {
-                        sh 'ls -alh'
+                        sh 'ls -alh'  // List contents on Unix systems
                     } else {
-                        bat 'dir'
+                        bat 'dir'  // List contents on Windows systems
                     }
 
                     echo "Checking for build files..."
                     if (isUnix()) {
-                        sh 'ls -alh'
+                        sh 'ls -alh'  // Again listing on Unix
                     } else {
-                        bat 'dir'
+                        bat 'dir'  // Listing on Windows
                     }
 
                     echo "Running the build process..."
-                    // Call buildApp without arguments if it doesn't need one
+                    // Call buildApp function with the service name
                     buildApp('payment-service')
                 }
             }
@@ -38,19 +38,28 @@ pipeline {
 
         stage('Test') {
             steps {
-                runTests()
+                script {
+                    echo "Running tests..."
+                    runTests()  // Assuming this is defined in your shared library
+                }
             }
         }
 
         stage('Dockerize') {
             steps {
-                dockerBuildAndPush()
+                script {
+                    echo "Building and pushing Docker image..."
+                    dockerBuildAndPush()  // Assuming Docker is set up and working in both environments
+                }
             }
         }
 
         stage('Deploy to Staging') {
             steps {
-                deployToEnv('staging')
+                script {
+                    echo "Deploying to Staging..."
+                    deployToEnv('staging')  // Assuming this is defined in your shared library
+                }
             }
         }
     }
