@@ -1,19 +1,15 @@
-// index.js
 const express = require('express');
 const app = express();
 const port = 3001;
 
-// Root endpoint
 app.get('/', (req, res) => {
   res.send('Cart Service is running!');
 });
 
-// Only start server if this file is run directly
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Cart Service listening at http://localhost:${port}`);
   });
 }
 
-// Export the app for testing
-module.exports = app;
+module.exports = app; // Export app for testing
