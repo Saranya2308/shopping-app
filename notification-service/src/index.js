@@ -1,49 +1,42 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+
 const app = express();
-const port = 3004; // Different port for notification-service
+app.use(express.json());
 
-// Setup email transporter using Nodemailer
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'your-email@gmail.com',
-    pass: 'your-email-password'  // Use environment variables for credentials in a real app
-  }
-});
+// Example route to send notification email
+app.post('/send-notification', async (req, res) => {
+  const { to, subject, message } = req.body;
 
-// Function to send email
-const sendEmail = (to, subject, text) => {
-  const mailOptions = {
-    from: 'your-email@gmail.com',
-    to: to,
-    subject: subject,
-    text: text
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
+  // Simulated transporter (in test/mock, you'd stub this)
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.example.com',
+    port: 587,
+    auth: {
+      user: 'username',
+      pass: 'password'
     }
   });
-};
 
-app.get('/', (req, res) => {
-  res.send('Notification Service is running!');
-});
+  try {
+    await transporter.sendMail({
+      from: '"Shopping App" <noreply@shoppingapp.com>',
+      to,
+      subject,
+      text: message
+    });
 
-app.get('/send-notification', (req, res) => {
-  const { email, message } = req.query;
-  if (email && message) {
-    sendEmail(email, 'Shopping App Notification', message);
-    res.send(`Notification sent to ${email}`);
-  } else {
-    res.send('Please provide email and message');
+    res.status(200).json({ success: true, message: 'Notification sent' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Failed to send notification' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Notification Service listening at http://localhost:${port}`);
-});
+module.exports = app;
+
+if (require.main === module) {
+  app.listen(3000, () => {
+    console.log('Notification service running on port 3000');
+  });
+}
