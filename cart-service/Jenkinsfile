@@ -16,18 +16,10 @@ pipeline {
             steps {
                 script {
                     echo "Workspace contents:"
-                    if (isUnix()) {
-                        sh 'ls -alh'  // List contents on Unix systems
-                    } else {
-                        bat 'dir'  // List contents on Windows systems
-                    }
+                    bat 'dir'  // List contents on Windows systems
 
                     echo "Checking for build files..."
-                    if (isUnix()) {
-                        sh 'ls -alh'  // Again listing on Unix
-                    } else {
-                        bat 'dir'  // Listing on Windows
-                    }
+                    bat 'dir'  // Again listing on Windows
 
                     echo "Running the build process..."
                     // Call buildApp function with the service name
