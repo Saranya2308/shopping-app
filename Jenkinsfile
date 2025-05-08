@@ -25,7 +25,11 @@ pipeline {
                         if (fileExists("${serviceDir}/package.json")) {
                             echo "📦 Found package.json for ${service}. Installing dependencies..."
                             dir(serviceDir) {
-                                sh 'npm install'  // Install dependencies for Node.js
+                                if (isUnix()) {
+                                    sh 'npm install'  // Install dependencies for Node.js on Unix
+                                } else {
+                                    bat 'npm install'  // Install dependencies for Node.js on Windows
+                                }
                             }
                         } else {
                             echo "❌ No package.json found in ${serviceDir}. Skipping build."
@@ -38,9 +42,10 @@ pipeline {
         stage('Test') {
             steps {
                 script {
+                    def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🧪 Testing ${service}"
-                        testApp(service)
+                        testApp(service)  // Assuming testApp is defined in the shared library
                     }
                 }
             }
@@ -49,9 +54,10 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
+                    def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🐳 Dockerizing ${service}"
-                        dockerBuildAndPush(service)
+                        dockerBuildAndPush(service)  // Assuming dockerBuildAndPush is defined in the shared library
                     }
                 }
             }
@@ -60,9 +66,10 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
+                    def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🚀 Deploying ${service} to staging"
-                        deployToEnv(service, 'staging')
+                        deployToEnv(service, 'staging')  // Assuming deployToEnv is defined in the shared library
                     }
                 }
             }
