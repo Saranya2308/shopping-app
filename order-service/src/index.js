@@ -1,11 +1,26 @@
 const express = require('express');
 const app = express();
-const port = 3002; // Different port for order-service
+app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Order Service is running!');
+app.post('/create-order', (req, res) => {
+  const { userId, items, totalAmount } = req.body;
+
+  if (!userId || !Array.isArray(items) || typeof totalAmount !== 'number') {
+    return res.status(400).json({ success: false, message: 'Invalid order data' });
+  }
+
+  // Simulated order creation logic
+  const orderId = Math.floor(Math.random() * 100000);
+  res.status(201).json({
+    success: true,
+    orderId,
+    message: 'Order created successfully'
+  });
 });
 
-app.listen(port, () => {
-  console.log(`Order Service listening at http://localhost:${port}`);
-});
+const PORT = process.env.PORT || 3000;
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Order service running on port ${PORT}`));
+}
+
+module.exports = app;
