@@ -1,0 +1,71 @@
+@Library('jenkins-shared-library') _
+
+pipeline {
+    agent any
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout') {
+            steps {
+                script {
+                    echo "Checking out application source..."
+                    checkout scm  // This checks out your actual app repo
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    echo "Workspace contents:"
+                    if (isUnix()) {
+                        sh 'ls -alh'  // List contents on Unix systems
+                    } else {
+                        bat 'dir'  // List contents on Windows systems
+                    }
+
+                    echo "Checking for build files..."
+                    if (isUnix()) {
+                        sh 'ls -alh'  // Again listing on Unix
+                    } else {
+                        bat 'dir'  // Listing on Windows
+                    }
+
+                    echo "Running the build process..."
+                    // Call buildApp function with the service name
+                    buildApp('notification-service')
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    echo "Running tests..."
+                    runTests()  // Assuming this is defined in your shared library
+                }
+            }
+        }
+
+        stage('Dockerize') {
+            steps {
+                script {
+                    echo "Building and pushing Docker image..."
+                    dockerBuildAndPush()  // Assuming Docker is set up and working in both environments
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                script {
+                    echo "Deploying to Staging..."
+                    deployToEnv('staging')  // Assuming this is defined in your shared library
+                }
+            }
+        }
+    }
+}
