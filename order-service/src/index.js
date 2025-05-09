@@ -18,7 +18,7 @@ app.post('/create-order', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Order service running on port ${PORT}`));
 }
