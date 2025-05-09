@@ -85,70 +85,78 @@ pipeline {
         }
 
         stage('Deploy to Staging') {
-            steps {
-                parallel(
-                    'cart-service': {
-                        script {
-                            echo "🚀 Deploying cart-service to staging"
-                            if (isUnix()) {
-                                sh "./deploy.sh cart-service staging"
-                                sh "cd cart-service/src && npm start"
-                            } else {
-                                bat "./deploy.bat cart-service staging"
-                                bat "cd cart-service/src && npm start"
-                            }
-                        }
-                    },
-                    'payment-service': {
-                        script {
-                            echo "🚀 Deploying payment-service to staging"
-                            if (isUnix()) {
-                                sh "./deploy.sh payment-service staging"
-                                sh "cd payment-service/src && npm start"
-                            } else {
-                                bat "./deploy.bat payment-service staging"
-                                bat "cd payment-service/src && npm start"
-                            }
-                        }
-                    },
-                    'order-service': {
-                        script {
-                            echo "🚀 Deploying order-service to staging"
-                            if (isUnix()) {
-                                sh "./deploy.sh order-service staging"
-                                sh "cd order-service/src && npm start"
-                            } else {
-                                bat "./deploy.bat order-service staging"
-                                bat "cd order-service/src && npm start"
-                            }
-                        }
-                    },
-                    'notification-service': {
-                        script {
-                            echo "🚀 Deploying notification-service to staging"
-                            if (isUnix()) {
-                                sh "./deploy.sh notification-service staging"
-                                sh "cd notification-service/src && npm start"
-                            } else {
-                                bat "./deploy.bat notification-service staging"
-                                bat "cd notification-service/src && npm start"
-                            }
-                        }
-                    },
-                    'product-service': {
-                        script {
-                            echo "🚀 Deploying product-service to staging"
-                            if (isUnix()) {
-                                sh "./deploy.sh product-service staging"
-                                sh "cd product-service/src && npm start"
-                            } else {
-                                bat "./deploy.bat product-service staging"
-                                bat "cd product-service/src && npm start"
-                            }
+    steps {
+        parallel(
+            'cart-service': {
+                script {
+                    echo "🚀 Deploying cart-service to staging"
+                    withEnv(["PORT=3001"]) {
+                        if (isUnix()) {
+                            sh "./deploy.sh cart-service staging"
+                            sh "cd cart-service/src && npm start"
+                        } else {
+                            bat "./deploy.bat cart-service staging"
+                            bat "cd cart-service/src && npm start"
                         }
                     }
-                )
+                }
+            },
+            'payment-service': {
+                script {
+                    echo "🚀 Deploying payment-service to staging"
+                    withEnv(["PORT=3002"]) {
+                        if (isUnix()) {
+                            sh "./deploy.sh payment-service staging"
+                            sh "cd payment-service/src && npm start"
+                        } else {
+                            bat "./deploy.bat payment-service staging"
+                            bat "cd payment-service/src && npm start"
+                        }
+                    }
+                }
+            },
+            'order-service': {
+                script {
+                    echo "🚀 Deploying order-service to staging"
+                    withEnv(["PORT=3003"]) {
+                        if (isUnix()) {
+                            sh "./deploy.sh order-service staging"
+                            sh "cd order-service/src && npm start"
+                        } else {
+                            bat "./deploy.bat order-service staging"
+                            bat "cd order-service/src && npm start"
+                        }
+                    }
+                }
+            },
+            'notification-service': {
+                script {
+                    echo "🚀 Deploying notification-service to staging"
+                    withEnv(["PORT=3004"]) {
+                        if (isUnix()) {
+                            sh "./deploy.sh notification-service staging"
+                            sh "cd notification-service/src && npm start"
+                        } else {
+                            bat "./deploy.bat notification-service staging"
+                            bat "cd notification-service/src && npm start"
+                        }
+                    }
+                }
+            },
+            'product-service': {
+                script {
+                    echo "🚀 Deploying product-service to staging"
+                    withEnv(["PORT=3005"]) {
+                        if (isUnix()) {
+                            sh "./deploy.sh product-service staging"
+                            sh "cd product-service/src && npm start"
+                        } else {
+                            bat "./deploy.bat product-service staging"
+                            bat "cd product-service/src && npm start"
+                        }
+                    }
+                }
             }
-        }
+        )
     }
 }
