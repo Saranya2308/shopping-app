@@ -1,0 +1,50 @@
+version: '3'
+services:
+  cart-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-cart-service
+    ports:
+      - "3001:3001"
+    networks:
+      - shopping-app-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-notification-service
+    ports:
+      - "3004:3004"
+    networks:
+      - shopping-app-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-order-service
+    ports:
+      - "3002:3002"
+    networks:
+      - shopping-app-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-payment-service
+    ports:
+      - "3003:3003"
+    networks:
+      - shopping-app-network
+
+  product-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-product-service
+    ports:
+      - "3000:3000"
+    networks:
+      - shopping-app-network
+
+networks:
+  shopping-app-network:
+    driver: bridge
