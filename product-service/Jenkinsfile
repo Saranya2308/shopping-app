@@ -8,6 +8,7 @@ pipeline {
                 cleanWs()
             }
         }
+
         stage('Checkout') {
             steps {
                 script {
