@@ -4,6 +4,7 @@ pipeline {
     agent any
     environment {
         SERVICE = 'cart-service'
+        SERVICE_PORT = '3000'             // Replace with actual port your app runs on
     }
     stages {
         stage('Clean Workspace') {
@@ -15,8 +16,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    echo "Checking out application source..."
-                    checkout scm  // This checks out your actual app repo
+                    echo "🔄 Checking out source code..."
+                    checkout scm
                 }
             }
         }
@@ -24,23 +25,15 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    echo "Workspace contents:"
-                    bat 'dir'  // List contents on Windows systems
-
-                    echo "Checking for build files..."
-                    bat 'dir'  // Again listing on Windows
-
-                    echo "Running the build process for ${SERVICE}..."
-                    // Assuming the `buildApp` function is available in the shared library
-                    // Or you can call the build process here directly like npm install if required
                     def serviceDir = "${SERVICE}/src"
+                    echo "🧱 Building ${SERVICE}..."
+
                     if (fileExists("${serviceDir}/package.json")) {
-                        echo "📦 Found package.json for ${SERVICE}. Installing dependencies..."
                         dir(serviceDir) {
-                            bat 'npm install'  // For Windows
+                            bat 'npm install'
                         }
                     } else {
-                        echo "❌ No package.json found in ${serviceDir}. Skipping build."
+                        error("❌ package.json not found in ${serviceDir}")
                     }
                 }
             }
@@ -49,31 +42,15 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    echo "Running tests for ${SERVICE}..."
                     def serviceDir = "${SERVICE}/src"
+                    echo "🧪 Running tests for ${SERVICE}..."
+
                     if (fileExists("${serviceDir}/package.json")) {
                         dir(serviceDir) {
-                            bat 'npm test'  // Run tests on Windows
+                            bat 'npm test'
                         }
                     } else {
-                        echo "❌ No tests found for ${SERVICE}. Skipping."
-                    }
-                }
-            }
-        }
-
-        stage('Dockerize') {
-            steps {
-                script {
-                    echo "Building and pushing Docker image for ${SERVICE}..."
-
-                    def serviceDir = "${SERVICE}/src"
-                    if (fileExists("${serviceDir}/Dockerfile")) {
-                        // Build the Docker image and push to a repository (Windows)
-                        bat "docker build -t your-docker-repo/${SERVICE}:${env.BUILD_ID} ${serviceDir}"
-                        bat "docker push your-docker-repo/${SERVICE}:${env.BUILD_ID}"
-                    } else {
-                        echo "❌ No Dockerfile found for ${SERVICE}. Skipping Docker build."
+                        echo "⚠️ No tests to run."
                     }
                 }
             }
@@ -82,9 +59,14 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    echo "Deploying ${SERVICE} to Staging..."
-                    // Example: Run deployment script for the service
-                    bat "./deploy.bat ${SERVICE} staging"  // Changed to a Windows batch script
+                    def serviceDir = "${SERVICE}/src"
+                    echo "🚀 Deploying ${SERVICE} to Staging..."
+
+                    // Start the app using npm start (or replace with custom command)
+                    dir(serviceDir) {
+                        echo "Starting the app..."
+                        bat "npm start"  // Start the Node.js app (replace if needed with your start script)
+                    }
                 }
             }
         }
