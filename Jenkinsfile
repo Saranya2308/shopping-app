@@ -85,13 +85,19 @@ pipeline {
         }
 
         stage('Deploy to Staging') {
-            steps {
+            parallel {
                 script {
                     def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🚀 Deploying ${service} to staging"
                         // Example: Run deployment script for each service
-                        bat "./deploy.bat ${service} staging"
+                        if (isUnix()) {
+                            sh "./deploy.sh ${service} staging"  // For Unix-based systems
+                            sh "cd ${service}/src && npm start"  // Start the service after deployment
+                        } else {
+                            bat "./deploy.bat ${service} staging"  // For Windows-based systems
+                            bat "cd ${service}/src && npm start"  // Start the service after deployment
+                        }
                     }
                 }
             }
