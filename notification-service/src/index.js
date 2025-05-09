@@ -36,7 +36,7 @@ app.post('/send-notification', async (req, res) => {
 module.exports = app;
 
 if (require.main === module) {
-  app.listen(3000, () => {
-    console.log('Notification service running on port 3000');
+  app.listen(3004, () => {
+    console.log('Notification service running on port 3004');
   });
 }
