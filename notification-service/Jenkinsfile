@@ -76,8 +76,13 @@ pipeline {
                     def serviceDir = "${SERVICE}/src"
                     if (fileExists("${serviceDir}/Dockerfile")) {
                         // Build the Docker image and push to a repository
-                        sh "docker build -t your-docker-repo/${SERVICE}:${env.BUILD_ID} ${serviceDir}"
-                        sh "docker push your-docker-repo/${SERVICE}:${env.BUILD_ID}"
+                        if (isUnix()) {
+                            sh "docker build -t your-docker-repo/${SERVICE}:${env.BUILD_ID} ${serviceDir}"
+                            sh "docker push your-docker-repo/${SERVICE}:${env.BUILD_ID}"
+                        } else {
+                            bat "docker build -t your-docker-repo/${SERVICE}:${env.BUILD_ID} ${serviceDir}"
+                            bat "docker push your-docker-repo/${SERVICE}:${env.BUILD_ID}"
+                        }
                     } else {
                         echo "❌ No Dockerfile found for ${SERVICE}. Skipping Docker build."
                     }
@@ -90,7 +95,11 @@ pipeline {
                 script {
                     echo "Deploying ${SERVICE} to Staging..."
                     // Example: Run deployment script for the service
-                    sh "./deploy.sh ${SERVICE} staging"
+                    if (isUnix()) {
+                        sh "./deploy.sh ${SERVICE} staging"  // Unix system deployment
+                    } else {
+                        bat "./deploy.bat ${SERVICE} staging"  // Windows system deployment
+                    }
                 }
             }
         }
