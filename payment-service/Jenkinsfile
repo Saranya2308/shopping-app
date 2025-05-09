@@ -94,12 +94,21 @@ pipeline {
             steps {
                 script {
                     echo "Deploying ${SERVICE} to Staging..."
-                    // Example: Run deployment script for the service
+                    def serviceDir = "${SERVICE}/src"
                     if (isUnix()) {
-                        sh "./deploy.sh ${SERVICE} staging"  // Unix system deployment
+                        // If it's a Unix system, use sh to deploy and start the app
+                        sh "./deploy.sh ${SERVICE} staging"
+                        echo "Starting service with npm start on Unix..."
+                        sh "npm start"  // Start the service with npm start on Unix
                     } else {
-                        bat "./deploy.bat ${SERVICE} staging"  // Windows system deployment
+                        // If it's a Windows system, use bat to deploy and start the app
+                        bat "./deploy.bat ${SERVICE} staging"
+                        echo "Starting service with npm start on Windows..."
+                        bat "npm start"  // Start the service with npm start on Windows
                     }
+
+                    // Optional: Log the deployment status
+                    echo "Deployment script for ${SERVICE} executed and service started."
                 }
             }
         }
