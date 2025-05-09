@@ -28,16 +28,8 @@ pipeline {
                         bat 'dir'  // List contents on Windows systems
                     }
 
-                    echo "Checking for build files..."
-                    if (isUnix()) {
-                        sh 'ls -alh'  // Again listing on Unix
-                    } else {
-                        bat 'dir'  // Listing on Windows
-                    }
-
                     echo "Running the build process..."
-                    // Call buildApp without arguments if it doesn't need one
-                    buildApp()
+                    buildApp()  // Assuming buildApp() works for both platforms
                 }
             }
         }
