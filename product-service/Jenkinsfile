@@ -29,7 +29,7 @@ pipeline {
                     }
 
                     echo "Running the build process..."
-                    buildApp()  // Assuming buildApp() works for both platforms
+                    buildApp()  // Assuming buildApp() works for both platforms (npm install, etc.)
                 }
             }
         }
@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     echo "Running tests..."
-                    runTests()  // Assuming this is defined in your shared library
+                    runTests()  // Assuming this is defined in your shared library for testing
                 }
             }
         }
@@ -57,6 +57,16 @@ pipeline {
                 script {
                     echo "Deploying to Staging..."
                     deployToEnv('staging')  // Assuming this is defined in your shared library
+
+                    // Start the service using npm start
+                    def serviceDir = "src"  // Update if the path is different
+                    if (isUnix()) {
+                        echo "Starting service with npm start on Unix..."
+                        sh "cd ${serviceDir} && npm start"  // Start the service on Unix
+                    } else {
+                        echo "Starting service with npm start on Windows..."
+                        bat "cd ${serviceDir} && npm start"  // Start the service on Windows
+                    }
                 }
             }
         }
