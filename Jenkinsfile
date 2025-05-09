@@ -1,5 +1,3 @@
-@Library('jenkins-shared-library') _
-
 pipeline {
     agent any
 
@@ -13,6 +11,7 @@ pipeline {
                 cleanWs()
             }
         }
+
         stage('Checkout') {
             steps {
                 echo 'Checking out application source...'
@@ -50,7 +49,18 @@ pipeline {
                     def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🧪 Testing ${service}"
-                        testApp(service)  // Assuming testApp is defined in the shared library
+                        def serviceDir = "${service}/src"
+                        if (fileExists("${serviceDir}/package.json")) {
+                            dir(serviceDir) {
+                                if (isUnix()) {
+                                    sh 'npm test'  // Run tests on Unix
+                                } else {
+                                    bat 'npm test'  // Run tests on Windows
+                                }
+                            }
+                        } else {
+                            echo "❌ No tests found for ${service}. Skipping."
+                        }
                     }
                 }
             }
@@ -62,7 +72,13 @@ pipeline {
                     def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🐳 Dockerizing ${service}"
-                        dockerBuildAndPush(service)  // Assuming dockerBuildAndPush is defined in the shared library
+                        def serviceDir = "${service}/src"
+                        if (fileExists("${serviceDir}/Dockerfile")) {
+                            sh "docker build -t your-docker-repo/${service}:${env.BUILD_ID} ${serviceDir}"
+                            sh "docker push your-docker-repo/${service}:${env.BUILD_ID}"
+                        } else {
+                            echo "❌ No Dockerfile found for ${service}. Skipping Docker build."
+                        }
                     }
                 }
             }
@@ -74,7 +90,8 @@ pipeline {
                     def services = SERVICES.split(', ')
                     services.each { service ->
                         echo "🚀 Deploying ${service} to staging"
-                        deployToEnv(service, 'staging')  // Assuming deployToEnv is defined in the shared library
+                        // Example: Run deployment script for each service
+                        sh "./deploy.sh ${service} staging"
                     }
                 }
             }
