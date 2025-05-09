@@ -91,7 +91,7 @@ pipeline {
                     services.each { service ->
                         echo "🚀 Deploying ${service} to staging"
                         // Example: Run deployment script for each service
-                        sh "./deploy.sh ${service} staging"
+                        bat "./deploy.bat ${service} staging"
                     }
                 }
             }
