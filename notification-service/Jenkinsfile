@@ -2,12 +2,16 @@
 
 pipeline {
     agent any
+    environment {
+        SERVICE = 'notification-service'
+    }
     stages {
         stage('Clean Workspace') {
             steps {
                 cleanWs()
             }
         }
+
         stage('Checkout') {
             steps {
                 script {
@@ -28,15 +32,19 @@ pipeline {
                     }
 
                     echo "Checking for build files..."
-                    if (isUnix()) {
-                        sh 'ls -alh'  // Again listing on Unix
+                    def serviceDir = "${SERVICE}/src"
+                    if (fileExists("${serviceDir}/package.json")) {
+                        echo "📦 Found package.json for ${SERVICE}. Installing dependencies..."
+                        dir(serviceDir) {
+                            if (isUnix()) {
+                                sh 'npm install'  // Install dependencies for Node.js on Unix
+                            } else {
+                                bat 'npm install'  // Install dependencies for Node.js on Windows
+                            }
+                        }
                     } else {
-                        bat 'dir'  // Listing on Windows
+                        echo "❌ No package.json found in ${serviceDir}. Skipping build."
                     }
-
-                    echo "Running the build process..."
-                    // Call buildApp function with the service name
-                    buildApp('notification-service')
                 }
             }
         }
@@ -44,8 +52,19 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    echo "Running tests..."
-                    runTests()  // Assuming this is defined in your shared library
+                    echo "Running tests for ${SERVICE}..."
+                    def serviceDir = "${SERVICE}/src"
+                    if (fileExists("${serviceDir}/package.json")) {
+                        dir(serviceDir) {
+                            if (isUnix()) {
+                                sh 'npm test'  // Run tests on Unix
+                            } else {
+                                bat 'npm test'  // Run tests on Windows
+                            }
+                        }
+                    } else {
+                        echo "❌ No tests found for ${SERVICE}. Skipping."
+                    }
                 }
             }
         }
@@ -53,8 +72,15 @@ pipeline {
         stage('Dockerize') {
             steps {
                 script {
-                    echo "Building and pushing Docker image..."
-                    dockerBuildAndPush()  // Assuming Docker is set up and working in both environments
+                    echo "Building and pushing Docker image for ${SERVICE}..."
+                    def serviceDir = "${SERVICE}/src"
+                    if (fileExists("${serviceDir}/Dockerfile")) {
+                        // Build the Docker image and push to a repository
+                        sh "docker build -t your-docker-repo/${SERVICE}:${env.BUILD_ID} ${serviceDir}"
+                        sh "docker push your-docker-repo/${SERVICE}:${env.BUILD_ID}"
+                    } else {
+                        echo "❌ No Dockerfile found for ${SERVICE}. Skipping Docker build."
+                    }
                 }
             }
         }
@@ -62,8 +88,9 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    echo "Deploying to Staging..."
-                    deployToEnv('staging')  // Assuming this is defined in your shared library
+                    echo "Deploying ${SERVICE} to Staging..."
+                    // Example: Run deployment script for the service
+                    sh "./deploy.sh ${SERVICE} staging"
                 }
             }
         }
