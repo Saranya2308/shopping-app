@@ -85,7 +85,7 @@ pipeline {
         }
 
         stage('Deploy to Staging') {
-            parallel {
+            parallel (
                 'cart-service': {
                     echo "🚀 Deploying cart-service to staging"
                     if (isUnix()) {
@@ -136,7 +136,7 @@ pipeline {
                         bat "cd product-service/src && npm start"
                     }
                 }
-            }
+            )
         }
     }
 }
